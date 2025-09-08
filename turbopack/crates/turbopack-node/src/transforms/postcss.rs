@@ -168,10 +168,7 @@ impl Asset for PostCssTransformedAsset {
     async fn content(self: ResolvedVc<Self>) -> Result<Vc<AssetContent>> {
         let this = self.await?;
         Ok(*transform_process_operation(self)
-            .issue_file_path(
-                this.source.ident().path().owned().await?,
-                "PostCSS processing",
-            )
+            .issue_file_path(this.source.ident().path().await?, "PostCSS processing")
             .await?
             .connect()
             .await?
@@ -285,12 +282,11 @@ impl JsonSource {
 impl Source for JsonSource {
     #[turbo_tasks::function]
     async fn ident(&self) -> Result<Vc<AssetIdent>> {
-        Ok(AssetIdent::new(AssetIdent::from_path(
-            match &*self.key.await? {
-                Some(key) => self.path.append(".")?.append(key)?.append(".json")?,
-                None => self.path.append(".json")?,
-            },
-        )))
+        Ok(AssetIdent::from_path(match &*self.key.await? {
+            Some(key) => self.path.append(".")?.append(key)?.append(".json")?,
+            None => self.path.append(".json")?,
+        })
+        .cell())
     }
 }
 
@@ -507,17 +503,16 @@ impl PostCssTransformedAsset {
                 .module()
                 .to_resolved()
                 .await?;
-        let css_fs_path = self.source.ident().path();
+        let css_fs_path = self.source.ident().path().await?;
 
         // We need to get a path relative to the project because the postcss loader
         // runs with the project as the current working directory.
-        let css_path =
-            if let Some(css_path) = project_path.get_relative_path_to(&*css_fs_path.await?) {
-                css_path.into_owned()
-            } else {
-                // This shouldn't be an error since it can happen on virtual assets
-                "".into()
-            };
+        let css_path = if let Some(css_path) = project_path.get_relative_path_to(&css_fs_path) {
+            css_path.into_owned()
+        } else {
+            // This shouldn't be an error since it can happen on virtual assets
+            "".into()
+        };
 
         let config_value = evaluate_webpack_loader(WebpackLoaderContext {
             module_asset: postcss_executor,

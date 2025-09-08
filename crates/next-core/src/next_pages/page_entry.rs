@@ -105,7 +105,7 @@ pub async fn create_page_ssr_entry_module(
         let file = File::from(result.build());
 
         source = Vc::upcast(VirtualSource::new(
-            source.ident().path().owned().await?,
+            source.ident().path().await?,
             AssetContent::file(file.into()),
         ));
     }

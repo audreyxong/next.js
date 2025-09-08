@@ -112,7 +112,7 @@ impl Source for MdxTransformedAsset {
     async fn ident(&self) -> Result<Vc<AssetIdent>> {
         let mut ident = self.source.ident().owned().await?;
         ident.rename_as_ref("*.tsx").await?;
-        Ok(AssetIdent::new(ident))
+        Ok(ident.cell())
     }
 }
 
@@ -122,7 +122,7 @@ impl Asset for MdxTransformedAsset {
     async fn content(self: ResolvedVc<Self>) -> Result<Vc<AssetContent>> {
         let this = self.await?;
         Ok(*transform_process_operation(self)
-            .issue_file_path(this.source.ident().path().owned().await?, "MDX processing")
+            .issue_file_path(this.source.ident().path().await?, "MDX processing")
             .await?
             .connect()
             .await?
@@ -260,8 +260,8 @@ struct MdxIssue {
 #[turbo_tasks::value_impl]
 impl Issue for MdxIssue {
     #[turbo_tasks::function]
-    fn file_path(&self) -> Vc<FileSystemPath> {
-        self.source.file_path()
+    async fn file_path(&self) -> Result<Vc<FileSystemPath>> {
+        Ok(self.source.file_path().await?.cell())
     }
 
     #[turbo_tasks::function]
