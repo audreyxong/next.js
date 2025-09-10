@@ -86,6 +86,8 @@ pub async fn app_vendors_split<'l>(
     let mut chunk_group_specific_chunk_items = Vec::new();
     let mut app_chunk_items = Vec::new();
     let mut vendors_chunk_items = Vec::new();
+    // TODO this needs to create new chunk groups for each async entry point to preserver `import()`
+    // semantics, even if it leads to more chunks.
     for item in chunk_items {
         let ChunkItemOrBatchWithInfo::ChunkItem {
             chunk_item: ChunkItemWithAsyncModuleInfo { module, .. },

@@ -863,10 +863,13 @@ impl Project {
             match route {
                 Route::Page {
                     html_endpoint,
-                    data_endpoint: _,
+                    data_endpoint,
                 } => {
                     if !app_dir_only {
                         endpoints.push(*html_endpoint);
+                        if let Some(data_endpoint) = data_endpoint {
+                            endpoints.push(*data_endpoint);
+                        }
                     }
                 }
                 Route::PageApi { endpoint } => {

@@ -349,7 +349,9 @@ impl HmrBenchmark {
                     data_endpoint,
                 } => {
                     let _ = endpoint_write_to_disk(**html_endpoint).await?;
-                    let _ = endpoint_write_to_disk(**data_endpoint).await?;
+                    if let Some(data_endpoint) = data_endpoint {
+                        let _ = endpoint_write_to_disk(**data_endpoint).await?;
+                    }
                 }
                 next_api::route::Route::PageApi { endpoint } => {
                     let _ = endpoint_write_to_disk(**endpoint).await?;

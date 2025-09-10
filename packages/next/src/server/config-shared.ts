@@ -499,7 +499,8 @@ export interface ExperimentalConfig {
   turbopackUseBuiltinSass?: boolean
 
   /**
-   * Whether to use the whole app module graph in development mode.  This makes development mode chunking more like production but may come with an HMR performance regression.
+   * Whether to compute the whole app module graph in development mode. This may reduce memory usage
+   * by enabling more sharing of chunking decisions across routes.
    */
   turbopackUseWholeAppModuleGraphInDev?: boolean
 
