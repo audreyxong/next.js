@@ -1017,12 +1017,7 @@ impl PageEndpoint {
                             ssr_module_graph,
                             current_availability_info,
                         )
-                        .await
-                        .context(format!(
-                            "failed to find chunk group for {} for {:?}",
-                            layout.ident().to_string().await?,
-                            this.ty,
-                        ))?;
+                        .await?;
 
                     current_chunks = current_chunks
                         .concatenate(*chunk_group.assets)
