@@ -21,7 +21,6 @@ import { InvariantError } from '../../../../shared/lib/invariant-error'
 let reconnections = 0
 let reloading = false
 let serverSessionId: number | null = null
-let source: WebSocket
 
 export function createWebSocket(
   assetPrefix: string,
@@ -33,20 +32,22 @@ export function createWebSocket(
     )
   }
 
+  let webSocket: WebSocket
+
   const sendMessage = (data: string) => {
-    if (source.readyState === source.OPEN) {
-      source.send(data)
+    if (webSocket.readyState === webSocket.OPEN) {
+      webSocket.send(data)
     }
   }
 
   const processTurbopackMessage = createProcessTurbopackMessage(sendMessage)
 
   function init(): WebSocket {
-    if (source) source.close()
+    if (webSocket) webSocket.close()
 
     function handleOnline() {
       if (isTerminalLoggingEnabled) {
-        logQueue.onSocketReady(source)
+        logQueue.onSocketReady(webSocket)
       }
       reconnections = 0
       console.log('[HMR] connected')
@@ -96,9 +97,9 @@ export function createWebSocket(
 
     let timer: ReturnType<typeof setTimeout>
     function handleDisconnect() {
-      source.onerror = null
-      source.onclose = null
-      source.close()
+      webSocket.onerror = null
+      webSocket.onclose = null
+      webSocket.close()
       reconnections++
       // After 25 reconnects we'll want to reload the page as it indicates the dev server is no longer running.
       if (reconnections > 25) {
@@ -112,16 +113,16 @@ export function createWebSocket(
       timer = setTimeout(init, reconnections > 5 ? 5000 : 1000)
     }
 
-    source = new window.WebSocket(
+    webSocket = new window.WebSocket(
       `${getSocketUrl(assetPrefix)}/_next/webpack-hmr?id=${self.__next_r}`
     )
-    source.binaryType = 'arraybuffer'
-    source.onopen = handleOnline
-    source.onmessage = handleMessage
-    source.onerror = handleDisconnect
-    source.onclose = handleDisconnect
+    webSocket.binaryType = 'arraybuffer'
+    webSocket.onopen = handleOnline
+    webSocket.onmessage = handleMessage
+    webSocket.onerror = handleDisconnect
+    webSocket.onclose = handleDisconnect
 
-    return source
+    return webSocket
   }
 
   return init()
