@@ -16,7 +16,7 @@ use turbopack::{
 };
 use turbopack_core::{
     chunk::{
-        ChunkingConfig, MangleType, MinifyType, SourceMapsType,
+        ChunkingConfig, ContentHashing, MangleType, MinifyType, SourceMapsType,
         module_id_strategies::ModuleIdStrategy,
     },
     compile_time_defines,
@@ -1086,6 +1086,7 @@ pub async fn get_server_chunking_context_with_client_assets(
                     ..Default::default()
                 },
             )
+            .use_content_hashing(ContentHashing::Direct { length: 16 })
             .module_merging(*scope_hoisting.await?);
     }
 
@@ -1159,6 +1160,7 @@ pub async fn get_server_chunking_context(
                     ..Default::default()
                 },
             )
+            .use_content_hashing(ContentHashing::Direct { length: 16 })
             .module_merging(*scope_hoisting.await?);
     }
 

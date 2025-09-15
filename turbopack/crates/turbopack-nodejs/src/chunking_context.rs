@@ -3,12 +3,13 @@ use tracing::Instrument;
 use turbo_rcstr::{RcStr, rcstr};
 use turbo_tasks::{ResolvedVc, TaskInput, TryJoinIterExt, Upcast, ValueToString, Vc};
 use turbo_tasks_fs::FileSystemPath;
+use turbo_tasks_hash::hash_xxh3_hash64;
 use turbopack_core::{
-    asset::Asset,
+    asset::{Asset, AssetContent},
     chunk::{
         Chunk, ChunkGroupResult, ChunkItem, ChunkType, ChunkableModule, ChunkingConfig,
-        ChunkingConfigs, ChunkingContext, EntryChunkGroupResult, EvaluatableAssets, MinifyType,
-        ModuleId, SourceMapsType,
+        ChunkingConfigs, ChunkingContext, ContentHashing, EntryChunkGroupResult, EvaluatableAssets,
+        MinifyType, ModuleId, SourceMapsType,
         availability_info::AvailabilityInfo,
         chunk_group::{MakeChunkGroupResult, make_chunk_group},
         module_id_strategies::{DevModuleIdStrategy, ModuleIdStrategy},
@@ -112,6 +113,11 @@ impl NodeJsChunkingContextBuilder {
         self
     }
 
+    pub fn use_content_hashing(mut self, content_hashing: ContentHashing) -> Self {
+        self.chunking_context.content_hashing = Some(content_hashing);
+        self
+    }
+
     /// Builds the chunking context.
     pub fn build(self) -> Vc<NodeJsChunkingContext> {
         NodeJsChunkingContext::cell(self.chunking_context)
@@ -148,6 +154,8 @@ pub struct NodeJsChunkingContext {
     enable_dynamic_chunk_content_loading: bool,
     /// Whether to minify resulting chunks
     minify_type: MinifyType,
+    /// Whether content hashing is enabled.
+    content_hashing: Option<ContentHashing>,
     /// Whether to generate source maps
     source_maps_type: SourceMapsType,
     /// Whether to use manifest chunks for lazy compilation
@@ -189,6 +197,7 @@ impl NodeJsChunkingContext {
                 environment,
                 runtime_type,
                 minify_type: MinifyType::NoMinify,
+                content_hashing: None,
                 source_maps_type: SourceMapsType::Full,
                 manifest_chunks: false,
                 should_use_file_source_map_uris: false,
@@ -314,16 +323,44 @@ impl ChunkingContext for NodeJsChunkingContext {
     #[turbo_tasks::function]
     async fn chunk_path(
         &self,
-        _asset: Option<Vc<Box<dyn Asset>>>,
+        asset: Option<Vc<Box<dyn Asset>>>,
         ident: Vc<AssetIdent>,
         prefix: Option<RcStr>,
         extension: RcStr,
     ) -> Result<Vc<FileSystemPath>> {
+        debug_assert!(
+            extension.starts_with("."),
+            "`extension` should include the leading '.', got '{extension}'"
+        );
         let root_path = self.chunk_root_path.clone();
-        let name = ident
-            .output_name(self.root_path.clone(), prefix, extension)
-            .owned()
-            .await?;
+        let name = match self.content_hashing {
+            None => {
+                ident
+                    .output_name(self.root_path.clone(), prefix, extension)
+                    .owned()
+                    .await?
+            }
+            Some(ContentHashing::Direct { length }) => {
+                let Some(asset) = asset else {
+                    bail!("chunk_path requires an asset when content hashing is enabled");
+                };
+                let content = asset.content().await?;
+                if let AssetContent::File(file) = &*content {
+                    let hash = hash_xxh3_hash64(&file.await?);
+                    let length = length as usize;
+                    if let Some(prefix) = prefix {
+                        format!("{prefix}-{hash:0length$x}{extension}").into()
+                    } else {
+                        format!("{hash:0length$x}{extension}").into()
+                    }
+                } else {
+                    bail!(
+                        "chunk_path requires an asset with file content when content hashing is \
+                         enabled"
+                    );
+                }
+            }
+        };
         Ok(root_path.join(&name)?.cell())
     }
 

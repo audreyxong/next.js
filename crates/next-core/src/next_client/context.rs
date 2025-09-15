@@ -14,12 +14,11 @@ use turbopack::{
     resolve_options_context::ResolveOptionsContext,
 };
 use turbopack_browser::{
-    BrowserChunkingContext, ContentHashing, CurrentChunkMethod,
-    react_refresh::assert_can_resolve_react_refresh,
+    BrowserChunkingContext, CurrentChunkMethod, react_refresh::assert_can_resolve_react_refresh,
 };
 use turbopack_core::{
     chunk::{
-        ChunkingConfig, ChunkingContext, MangleType, MinifyType, SourceMapsType,
+        ChunkingConfig, ChunkingContext, ContentHashing, MangleType, MinifyType, SourceMapsType,
         module_id_strategies::ModuleIdStrategy,
     },
     compile_time_info::{CompileTimeDefines, CompileTimeInfo, FreeVarReference, FreeVarReferences},

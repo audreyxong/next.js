@@ -48,6 +48,31 @@ use crate::{
     resolve::ExportUsage,
 };
 
+#[derive(
+    Debug,
+    TaskInput,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    Serialize,
+    Deserialize,
+    TraceRawVcs,
+    DeterministicHash,
+    NonLocalValue,
+)]
+pub enum ContentHashing {
+    /// Direct content hashing: Embeds the chunk content hash directly into the referencing chunk.
+    /// Benefit: No hash manifest needed.
+    /// Downside: Causes cascading hash invalidation.
+    Direct {
+        /// The length of the content hash in hex chars. Anything lower than 8 is not recommended
+        /// due to the high risk of collisions.
+        length: u8,
+    },
+}
+
 /// A module id, which can be a number or string
 #[turbo_tasks::value(shared, operation)]
 #[derive(Debug, Clone, Hash, Ord, PartialOrd, DeterministicHash)]

@@ -20,13 +20,13 @@ use turbopack::{
     css::chunk::CssChunkType, ecmascript::chunk::EcmascriptChunkType,
     global_module_ids::get_global_module_id_strategy,
 };
-use turbopack_browser::{BrowserChunkingContext, ContentHashing, CurrentChunkMethod};
+use turbopack_browser::{BrowserChunkingContext, CurrentChunkMethod};
 use turbopack_cli_utils::issue::{ConsoleUi, LogOptions};
 use turbopack_core::{
     asset::Asset,
     chunk::{
-        ChunkingConfig, ChunkingContext, EvaluatableAsset, EvaluatableAssets, MangleType,
-        MinifyType, SourceMapsType, availability_info::AvailabilityInfo,
+        ChunkingConfig, ChunkingContext, ContentHashing, EvaluatableAsset, EvaluatableAssets,
+        MangleType, MinifyType, SourceMapsType, availability_info::AvailabilityInfo,
     },
     environment::{BrowserEnvironment, Environment, ExecutionEnvironment, NodeJsEnvironment},
     ident::AssetIdent,

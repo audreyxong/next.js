@@ -1,18 +1,14 @@
 use anyhow::{Context, Result, bail};
-use serde::{Deserialize, Serialize};
 use tracing::Instrument;
 use turbo_rcstr::{RcStr, rcstr};
-use turbo_tasks::{
-    NonLocalValue, ResolvedVc, TaskInput, TryJoinIterExt, Upcast, ValueToString, Vc,
-    trace::TraceRawVcs,
-};
+use turbo_tasks::{ResolvedVc, TaskInput, TryJoinIterExt, Upcast, ValueToString, Vc};
 use turbo_tasks_fs::FileSystemPath;
-use turbo_tasks_hash::{DeterministicHash, hash_xxh3_hash64};
+use turbo_tasks_hash::hash_xxh3_hash64;
 use turbopack_core::{
     asset::{Asset, AssetContent},
     chunk::{
         Chunk, ChunkGroupResult, ChunkItem, ChunkType, ChunkableModule, ChunkingConfig,
-        ChunkingConfigs, ChunkingContext, EntryChunkGroupResult, EvaluatableAsset,
+        ChunkingConfigs, ChunkingContext, ContentHashing, EntryChunkGroupResult, EvaluatableAsset,
         EvaluatableAssets, MinifyType, ModuleId, SourceMapsType,
         availability_info::AvailabilityInfo,
         chunk_group::{MakeChunkGroupResult, make_chunk_group},
@@ -50,31 +46,6 @@ pub enum CurrentChunkMethod {
 
 pub const CURRENT_CHUNK_METHOD_DOCUMENT_CURRENT_SCRIPT_EXPR: &str =
     "typeof document === \"object\" ? document.currentScript : undefined";
-
-#[derive(
-    Debug,
-    TaskInput,
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Hash,
-    Serialize,
-    Deserialize,
-    TraceRawVcs,
-    DeterministicHash,
-    NonLocalValue,
-)]
-pub enum ContentHashing {
-    /// Direct content hashing: Embeds the chunk content hash directly into the referencing chunk.
-    /// Benefit: No hash manifest needed.
-    /// Downside: Causes cascading hash invalidation.
-    Direct {
-        /// The length of the content hash in hex chars. Anything lower than 8 is not recommended
-        /// due to the high risk of collisions.
-        length: u8,
-    },
-}
 
 pub struct BrowserChunkingContextBuilder {
     chunking_context: BrowserChunkingContext,

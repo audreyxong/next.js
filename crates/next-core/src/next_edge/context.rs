@@ -7,7 +7,7 @@ use turbopack::{css::chunk::CssChunkType, resolve_options_context::ResolveOption
 use turbopack_browser::BrowserChunkingContext;
 use turbopack_core::{
     chunk::{
-        ChunkingConfig, ChunkingContext, MangleType, MinifyType, SourceMapsType,
+        ChunkingConfig, ChunkingContext, ContentHashing, MangleType, MinifyType, SourceMapsType,
         module_id_strategies::ModuleIdStrategy,
     },
     compile_time_info::{CompileTimeDefines, CompileTimeInfo, FreeVarReference, FreeVarReferences},
@@ -270,6 +270,7 @@ pub async fn get_edge_chunking_context_with_client_assets(
                     ..Default::default()
                 },
             )
+            .use_content_hashing(ContentHashing::Direct { length: 16 })
             .module_merging(*scope_hoisting.await?);
     }
 
@@ -341,6 +342,7 @@ pub async fn get_edge_chunking_context(
                     ..Default::default()
                 },
             )
+            .use_content_hashing(ContentHashing::Direct { length: 16 })
             .module_merging(*scope_hoisting.await?);
     }
 
