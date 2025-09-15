@@ -356,9 +356,9 @@ export function processMessage(
       }
       return
     }
-    case HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED: {
+    case HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED: {
       processTurbopackMessage({
-        type: HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED,
+        type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED,
         data: {
           sessionId: message.data.sessionId,
         },

@@ -80,12 +80,14 @@ export class WebpackHotMiddleware {
   versionInfo: VersionInfo
   devtoolsFrontendUrl: string | undefined
   devToolsConfig: DevToolsConfig
+  sessionId: number
 
   constructor(
     compilers: webpack.Compiler[],
     versionInfo: VersionInfo,
     devtoolsFrontendUrl: string | undefined,
-    devToolsConfig: DevToolsConfig
+    devToolsConfig: DevToolsConfig,
+    sessionId: number
   ) {
     this.clientLatestStats = null
     this.middlewareLatestStats = null
@@ -94,6 +96,7 @@ export class WebpackHotMiddleware {
     this.versionInfo = versionInfo
     this.devtoolsFrontendUrl = devtoolsFrontendUrl
     this.devToolsConfig = devToolsConfig || ({} as DevToolsConfig)
+    this.sessionId = sessionId
 
     compilers[0].hooks.invalid.tap(
       'webpack-hot-middleware',
@@ -187,6 +190,12 @@ export class WebpackHotMiddleware {
       if (requestId) {
         this.clientsByRequestId.delete(requestId)
       }
+    })
+
+    // Send server connected message with session ID
+    this.publishToClient(client, {
+      type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED,
+      data: { sessionId: this.sessionId },
     })
 
     const syncStats = getStatsForSyncEvent(

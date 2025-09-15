@@ -65,7 +65,7 @@ export function createWebSocket(
             ? parseBinaryMessage(event.data)
             : JSON.parse(event.data)
 
-        if (message.type === HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED) {
+        if (message.type === HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED) {
           if (
             serverSessionId !== null &&
             serverSessionId !== message.data.sessionId

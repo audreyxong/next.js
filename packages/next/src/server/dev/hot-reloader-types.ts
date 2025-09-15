@@ -26,7 +26,7 @@ export const enum HMR_MESSAGE_SENT_TO_BROWSER {
   DEV_PAGES_MANIFEST_UPDATE = 'devPagesManifestUpdate',
   TURBOPACK_MESSAGE = 'turbopack-message',
   SERVER_ERROR = 'serverError',
-  TURBOPACK_CONNECTED = 'turbopack-connected',
+  SERVER_CONNECTED = 'server-connected',
   ISR_MANIFEST = 'isrManifest',
   DEV_INDICATOR = 'devIndicator',
   DEVTOOLS_CONFIG = 'devtoolsConfig',
@@ -119,8 +119,8 @@ export interface DevPagesManifestUpdateMessage {
   ]
 }
 
-export interface TurbopackConnectedMessage {
-  type: HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED
+export interface ServerConnectedMessage {
+  type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED
   data: { sessionId: number }
 }
 
@@ -145,7 +145,7 @@ export interface ReactDebugChunkMessage {
 
 export type HmrMessageSentToBrowser =
   | TurbopackMessage
-  | TurbopackConnectedMessage
+  | ServerConnectedMessage
   | BuildingMessage
   | SyncMessage
   | BuiltMessage
@@ -173,7 +173,7 @@ export type TurbopackMessageSentToBrowser =
       data: any
     }
   | {
-      type: HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED
+      type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED
       data: { sessionId: number }
     }
 

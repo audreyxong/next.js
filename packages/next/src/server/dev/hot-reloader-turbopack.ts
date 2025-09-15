@@ -13,7 +13,7 @@ import type {
   NextJsHotReloaderInterface,
   ReloadPageMessage,
   SyncMessage,
-  TurbopackConnectedMessage,
+  ServerConnectedMessage,
 } from './hot-reloader-types'
 import { HMR_MESSAGE_SENT_TO_BROWSER } from './hot-reloader-types'
 import type {
@@ -895,11 +895,11 @@ export async function createHotReloaderTurbopack(
           }
         })
 
-        const turbopackConnectedMessage: TurbopackConnectedMessage = {
-          type: HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED,
+        const serverConnectedMessage: ServerConnectedMessage = {
+          type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED,
           data: { sessionId },
         }
-        sendToClient(client, turbopackConnectedMessage)
+        sendToClient(client, serverConnectedMessage)
 
         const errors: CompilationError[] = []
 

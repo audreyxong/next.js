@@ -106,6 +106,7 @@ import {
 } from './hot-reloader-shared-utils'
 
 const MILLISECONDS_IN_NANOSECOND = BigInt(1_000_000)
+const sessionId = Math.floor(Number.MAX_SAFE_INTEGER * Math.random())
 
 function diff(a: Set<any>, b: Set<any>) {
   return new Set([...a].filter((v) => !b.has(v)))
@@ -1552,7 +1553,8 @@ export default class HotReloaderWebpack implements NextJsHotReloaderInterface {
       this.multiCompiler.compilers,
       this.versionInfo,
       this.devtoolsFrontendUrl,
-      initialDevToolsConfig
+      initialDevToolsConfig,
+      sessionId
     )
 
     let booted = false

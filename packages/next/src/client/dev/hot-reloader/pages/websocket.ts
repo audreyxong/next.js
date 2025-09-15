@@ -48,7 +48,7 @@ export function connectHMR(options: { path: string; assetPrefix: string }) {
 
       const message: HmrMessageSentToBrowser = JSON.parse(event.data)
 
-      if (message.type === HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED) {
+      if (message.type === HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED) {
         if (
           serverSessionId !== null &&
           serverSessionId !== message.data.sessionId

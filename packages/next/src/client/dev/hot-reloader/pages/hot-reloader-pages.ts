@@ -349,10 +349,10 @@ function processMessage(message: HmrMessageSentToBrowser) {
       }
       return
     }
-    case HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED: {
+    case HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED: {
       for (const listener of turbopackMessageListeners) {
         listener({
-          type: HMR_MESSAGE_SENT_TO_BROWSER.TURBOPACK_CONNECTED,
+          type: HMR_MESSAGE_SENT_TO_BROWSER.SERVER_CONNECTED,
           data: message.data,
         })
       }
