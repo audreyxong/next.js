@@ -113,6 +113,11 @@ export interface CacheHandlerV2 {
    * it should update the tags manifest accordingly.
    */
   expireTags(...tags: string[]): Promise<void>
+
+  updateTags(
+    tags: string[],
+    durations?: { stale?: number; expire?: number }
+  ): Promise<void>
 }
 
 /**
